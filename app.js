@@ -5,11 +5,14 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const { InternalServerError } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routes = require('./routes');
 
 const app = express();
+
+app.use(cors());
 
 app.use(cookieParser());
 
