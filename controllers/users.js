@@ -6,23 +6,29 @@ const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const User = require('../models/user');
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => {
-      res.send(users);
-    })
-    .catch(next);
-};
+const createUser = (req, res, next) => {
+  const {
+    email, password, name,
+  } = req.body;
 
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
-    .orFail(new NotFoundError('Не найдено'))
-
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      email, password: hash, name,
+    }))
     .then((user) => {
-      res.send(user);
+      const newUser = user.toObject();
+      delete newUser.password;
+      res.send(newUser);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.code === 11000) {
+        return next(
+          new ConflictError('Пользователь с таким email уже существует'),
+        );
+      }
+
+      if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректный запрос'));
       }
       return next(err);
@@ -49,35 +55,6 @@ const login = (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => {
-      const newUser = user.toObject();
-      delete newUser.password;
-      res.send(newUser);
-    })
-    .catch((err) => {
-      if (err.code === 11000) {
-        return next(
-          new ConflictError('Пользователь с таким email уже существует'),
-        );
-      }
-
-      if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Некорректный запрос'));
-      }
-      return next(err);
-    });
-};
-
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(new NotFoundError('Не найдено'))
@@ -88,32 +65,10 @@ const getUserInfo = (req, res, next) => {
 };
 
 const updateProfile = (req, res, next) => {
-  const { name, about } = req.body;
+  const { email, name } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .orFail(new NotFoundError('Не найдено'))
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Некорректный запрос'));
-      }
-      return next(err);
-    });
-};
-
-const updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
+    { email, name },
     {
       new: true,
       runValidators: true,
@@ -132,11 +87,8 @@ const updateAvatar = (req, res, next) => {
 };
 
 module.exports = {
-  getUsers,
-  getUserById,
-  login,
   createUser,
+  login,
   getUserInfo,
   updateProfile,
-  updateAvatar,
 };
