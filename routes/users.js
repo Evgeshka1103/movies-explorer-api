@@ -9,7 +9,6 @@ const {
 const usersRoutes = express.Router();
 
 usersRoutes.get('/me', getUserInfo);
-
 usersRoutes.patch('/me', validateUpdateProfile, updateProfile);
 
 module.exports = usersRoutes;
