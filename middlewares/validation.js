@@ -55,8 +55,4 @@ const validateDeleteMovie = celebrate({
 module.exports = {
   validateURL,
   validateUpdateProfile,
-  validateCreateUser,
-  validateLogin,
-  validateCreateMovie,
-  validateDeleteMovie,
 };
