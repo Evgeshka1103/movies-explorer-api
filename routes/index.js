@@ -1,8 +1,8 @@
 const express = require('express');
-const { createUser, login } = require('../../copy/controllers/users');
-const { validateCreateUser, validateLogin } = require('../../copy/middlewares/validation');
-const auth = require('../../copy/middlewares/auth');
-const NotFoundError = require('../../copy/errors/NotFoundError');
+const { createUser, login } = require('../controllers/users');
+const { validateCreateUser, validateLogin } = require('../middlewares/validation');
+const auth = require('../middlewares/auth');
+const NotFoundError = require('../errors/NotFoundError');
 
 const usersRoutes = require('./users');
 const moviesRoutes = require('./movies');

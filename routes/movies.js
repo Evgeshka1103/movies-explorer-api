@@ -1,11 +1,11 @@
 const express = require('express');
-const { validateCreateMovie, validateDeleteMovie } = require('../../copy/middlewares/validation');
+const { validateCreateMovie, validateDeleteMovie } = require('../middlewares/validation');
 
 const {
   getMovies,
   createMovie,
   deleteMovie,
-} = require('../../copy/controllers/movies');
+} = require('../controllers/movies');
 
 const moviesRoutes = express.Router();
 

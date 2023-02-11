@@ -1,10 +1,10 @@
 const express = require('express');
-const { validateUpdateProfile } = require('../../copy/middlewares/validation');
+const { validateUpdateProfile } = require('../middlewares/validation');
 
 const {
   getUserInfo,
   updateProfile,
-} = require('../../copy/controllers/users');
+} = require('../controllers/users');
 
 const usersRoutes = express.Router();
 
