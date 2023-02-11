@@ -8,7 +8,7 @@ const cors = require('cors');
 const { limiter } = require('./middlewares/limiter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { handleError } = require('./middlewares/error');
-const configUrl = require('./middlewares/config');
+const config = require('./middlewares/config');
 const routes = require('./routes');
 
 const app = express();
@@ -19,7 +19,7 @@ app.use(cookieParser());
 const { PORT = 3000 } = process.env;
 
 mongoose.set('strictQuery', true);
-mongoose.connect(configUrl.db_url, {
+mongoose.connect(config.db_url, {
   useNewUrlParser: true,
 });
 
