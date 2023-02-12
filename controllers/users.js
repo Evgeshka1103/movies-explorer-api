@@ -4,7 +4,6 @@ const CreatedCode = require('../utils/constants');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 const User = require('../models/user');
 
 const createUser = (req, res, next) => {
@@ -53,9 +52,7 @@ const login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Используйте действительную почту и пароль'));
-    });
+    .catch(next);
 };
 
 const getUserInfo = (req, res, next) => {
