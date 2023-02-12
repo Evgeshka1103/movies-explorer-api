@@ -1,9 +1,9 @@
 const handleError = (err, req, res, next) => {
-  const { InternalServerError = 500, message } = err;
+  const { status = 500, message } = err;
   console.log(message);
-  res.status(InternalServerError).send({
+  res.status(status).send({
     message:
-      InternalServerError === 500 ? 'Внутренняя ошибка сервера' : message,
+      status === 500 ? 'Внутренняя ошибка сервера' : message,
   });
   next();
 };
