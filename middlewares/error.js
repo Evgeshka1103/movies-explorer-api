@@ -8,4 +8,4 @@ const handleError = (err, req, res, next) => {
   next();
 };
 
-module.exports = handleError;
+module.exports = { handleError };
