@@ -1,8 +1,8 @@
 const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const Movie = require('../models/movie');
 const { OK, CreatedCode } = require('../utils/constants');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const getMovies = (req, res, next) => {
   Movie.find({})
@@ -48,7 +48,7 @@ const createMovie = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(
-          new NotFoundError('Некорректный запрос'),
+          new BadRequestError('Некорректный запрос'),
         );
       }
       return next(err);
@@ -57,9 +57,7 @@ const createMovie = (req, res, next) => {
 
 const deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(() => {
-      throw new NotFoundError('Не найдено');
-    })
+    .orFail(new NotFoundError('Не найдено'))
     .then((movie) => {
       if (movie.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Отказ сервера');
@@ -71,7 +69,7 @@ const deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new UnauthorizedError('Используйте действительную почту и пароль'));
+        next(new BadRequestError('Некорректный запрос'));
       } else {
         next(err);
       }
