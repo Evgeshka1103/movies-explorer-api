@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const CreatedCode = require('../utils/constants');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -16,20 +15,17 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       email, password: hash, name,
     }))
-    .then((user) => {
-      res.status(CreatedCode).send({
-        _id: user._id,
-        email,
-        name,
-      });
-    })
+    .then((user) => res.send({
+      name,
+      email,
+      _id: user._id,
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         return next(
           new ConflictError('Пользователь с таким email уже существует'),
         );
       }
-
       if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректный запрос'));
       }
