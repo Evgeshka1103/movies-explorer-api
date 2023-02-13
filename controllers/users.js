@@ -4,6 +4,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 const User = require('../models/user');
+const { CreatedCode } = require('../utils/constants');
 
 const createUser = (req, res, next) => {
   const {
@@ -15,17 +16,20 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       email, password: hash, name,
     }))
-    .then((user) => res.send({
-      name,
-      email,
-      _id: user._id,
-    }))
+    .then((user) => {
+      res.status(CreatedCode).send({
+        email,
+        name,
+        _id: user._id,
+      });
+    })
     .catch((err) => {
       if (err.code === 11000) {
         return next(
           new ConflictError('Пользователь с таким email уже существует'),
         );
       }
+
       if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректный запрос'));
       }
@@ -36,9 +40,10 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredantials(email, password)
+  User.findUserByCredantials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+      const { JWT_SECRET = 'some-secret-key' } = process.env;
+      const token = jwt.sign({ _id: user._id }, process.env.NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', {
         expiresIn: '7d',
       });
       res.cookie('jwt', token, {
@@ -75,10 +80,8 @@ const updateProfile = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.code === 11000) {
-        return next(
-          new ConflictError('Пользователь с таким email уже существует'),
-        );
+      if (err.code === 1100) {
+        return next(new ConflictError('Пользователь с таким email уже существует'));
       }
       if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректный запрос'));

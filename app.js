@@ -19,7 +19,7 @@ app.use(cookieParser());
 const { PORT = 3000 } = process.env;
 
 mongoose.set('strictQuery', true);
-mongoose.connect(config.db_url, {
+mongoose.connect(config.DB_URL, {
   useNewUrlParser: true,
 });
 
