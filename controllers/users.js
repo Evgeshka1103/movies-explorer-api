@@ -4,7 +4,9 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 const User = require('../models/user');
-const { CreatedCode } = require('../utils/constants');
+const {
+  CreatedCode, badRequestErrorMessage, conflictErrorMessage, notFoundErrorMessage,
+} = require('../utils/constants');
 
 const createUser = (req, res, next) => {
   const {
@@ -26,11 +28,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         return next(
-          new ConflictError('Пользователь с таким email уже существует'),
+          new ConflictError(conflictErrorMessage),
         );
       }
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Некорректный запрос'));
+        return next(new BadRequestError(badRequestErrorMessage));
       }
       return next(err);
     });
@@ -57,7 +59,7 @@ const login = (req, res, next) => {
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError('Не найдено'))
+    .orFail(new NotFoundError(notFoundErrorMessage))
     .then((user) => {
       res.send(user);
     })
@@ -74,16 +76,16 @@ const updateProfile = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new NotFoundError('Не найдено'))
+    .orFail(new NotFoundError(notFoundErrorMessage))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.code === 1100) {
-        return next(new ConflictError('Пользователь с таким email уже существует'));
+        return next(new ConflictError(conflictErrorMessage));
       }
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Некорректный запрос'));
+        return next(new BadRequestError(badRequestErrorMessage));
       }
       return next(err);
     });
